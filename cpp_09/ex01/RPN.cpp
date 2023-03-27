@@ -2,12 +2,12 @@
 
 RPN::RPN()
 {
-    std::cout << "default constructor called" << std::endl;
+
 }
 
 RPN::~RPN()
 {
-    std::cout << "deconstructor called" << std::endl;
+
 }
 
 RPN::RPN(std::stack<double> data)

@@ -12,7 +12,7 @@ int main(int ac, char **av)
 
     if(ac != 2)
     {
-        std::cerr << "Error: use ./RPN \"values\" !" << std::endl;
+        std::cerr << "Error: use cmd like ./RPN \"1 2 +\" !" << std::endl;
         return 1;
     }
 

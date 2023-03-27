@@ -28,8 +28,8 @@ int main(int argc, char** argv)
 
 
     Btc btc;
-    btc.setData(argv[1]);
-    btc.getData();
+    btc.setData();
+    btc.getData(argv[1]);
 
     input_file.close();
     data_file.close();

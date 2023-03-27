@@ -5,7 +5,15 @@ static int  isValideDate(std::string date)
     if ( date[4] != '-' || date[7] != '-') {
         return 0;
     }
-    int year = std::stoi(date.substr(0, 4));
+    int year;
+    try{
+         year = std::stoi(date.substr(0, 4));
+    }
+    catch(int myNum)
+    {
+         year = 2001;
+
+    }
     int month = std::stoi(date.substr(5, 2));
     int day = std::stoi(date.substr(8, 2));
     if (year < 1900 || year > 2100 || month < 1 || month > 12 || day < 1 || day > 31) {
@@ -35,34 +43,20 @@ static void leftTrim(std::string& s)
 
 Btc::Btc()
 {
-    std::cout << "default constructor called" << std::endl;
 }
 
 
-Btc::Btc(Btc const &btc)
-{
-    std::cout << "copy constructor called" << std::endl;
-    this->data = btc.data;
-}
 
-Btc& Btc::operator=(Btc const &var) {
-    if (this != &var) {
-        data = var.data;
-    }
-    return *this;
-}
 Btc::~Btc()
 {
-    std::cout << "deconstructor called" << std::endl;
 }
 
-void Btc::setData(std::string file) 
+void Btc::setData() 
 {
 
     std::ifstream input_data("data.csv");
     std::string line1;
     getline(input_data, line1);
-    //std::map<std::string, float> data_f ;
     while (getline(input_data, line1)) 
     {
         size_t pos = line1.find(",");
@@ -73,8 +67,6 @@ void Btc::setData(std::string file)
         if(date1[date1.length()] == ' ')
             std::cerr << "data missing space\n";
 
-        // rightTrim(date1);
-        // leftTrim(value1);
         float v = std::atof(value1.c_str());
         if(isValideDate(date1))
         {
@@ -87,17 +79,20 @@ void Btc::setData(std::string file)
     }
     input_data.close();
 
+}
 
-
+void Btc::getData(std::string file) 
+{
     std::ifstream input_file(file);
     std::string line;
     getline(input_file, line);
+    std::multimap<std::string, float>::iterator it2;
     while (getline(input_file, line)) 
     {
         size_t pos = line.find("|");
         if (pos == std::string::npos)
         {
-            std::cerr << "not pipe\n";
+            std::cout << "Error: bad input => " << line << std::endl;
             continue;
         }
         std::string date = line.substr(0, pos);
@@ -110,31 +105,44 @@ void Btc::setData(std::string file)
 
         rightTrim(date);
         leftTrim(value);
+        size_t pos1 = value.find(",");
+        if(pos1 == 1)
+            value.replace(pos1, 1, ".");
         float v = std::atof(value.c_str());
-        if(isValideDate(date))
+
+        if(v > 1000)
         {
-            if(v > 1000 || v < 0)
-                std::cerr << "Error: value\n";
-            else
-                data.insert(std::make_pair(date, v));//data[date] = v;
+            v = -1;
+            std::cout << "Error: too large a number." << std::endl;
         }
         else
-            std::cerr << "Error: date\n";
+        {
+            it2 = data_f.lower_bound(date);
+            if(date != it2->first && it2 != data_f.begin())
+                it2--;
+            if(!isValideDate(date))
+            {
+                std::cout << "Error: bad input => " << date << std::endl;
+                continue;  
+            }
+            std::ostringstream ss;
+            ss << v;
+            std::string myString = ss.str();
+            if( myString != value)
+            {
+                std::cout << "Error: bad input" << std::endl;
+                continue; 
+            }
+            if(v < 0)
+                std::cout << "Error: not a positive number." << std::endl;
+            else
+                std::cout << date << " => " << v << " = "<< v * it2->second << std::endl;
 
 
+        }
     }
+
     input_file.close();
 }
 
-void Btc::getData() 
-{
-    std::multimap<std::string, float>::iterator it2;
 
-    for ( std::multimap<std::string, float>::iterator it1 = data.begin(); it1 != data.end(); ++it1)
-    {
-        it2 = data_f.lower_bound(it1->first);
-        it2--;
-        std::cout << it1->first << " => " << it1->second << " = "<< it1->second * it2->second << std::endl;
-    }
-
-}
